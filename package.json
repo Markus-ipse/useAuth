@@ -2,16 +2,17 @@
     "name": "react-use-auth",
     "version": "0.3.0",
     "description": "The simplest way to add authentication to your React app. Handles everything for you. Users, login forms, redirects, sharing state between components. Everything",
-    "source": "src/index.js",
+    "source": "src/index.ts",
     "main": "dist/index.js",
     "module": "dist/index.module.js",
     "unpkg": "dist/index.umd.js",
+    "types": "dist/index.d.ts",
     "repository": "git@github.com:Swizec/useAuth.git",
     "author": "Swizec Teller <swizec@swizec.com>",
     "license": "MIT",
     "private": false,
     "scripts": {
-        "build": "microbundle --jsx React.createElement",
+        "build": "microbundle --jsx react",
         "dev": "microbundle watch --jsx React.createElement"
     },
     "files": [
@@ -22,6 +23,8 @@
         "auth0-js": "^9.11.2"
     },
     "devDependencies": {
+        "@types/auth0-js": "^9.10.6",
+        "@types/react": "^16.9.2",
         "eslint": "^6.1.0",
         "eslint-config-prettier": "^6.0.0",
         "eslint-plugin-prettier": "^3.1.0",

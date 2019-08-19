@@ -12,7 +12,8 @@ export const authReducer = (state, action) => {
 
             return {
                 user,
-                expiresAt
+                expiresAt,
+                checkingSession: false
             };
         case "logout":
             if (typeof localStorage !== "undefined") {
@@ -30,7 +31,8 @@ export const authReducer = (state, action) => {
                 user: {},
                 expiresAt: null,
                 errorType,
-                error
+                error,
+                checkingSession: false
             };
         default:
             return state;

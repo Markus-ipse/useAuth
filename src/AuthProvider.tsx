@@ -1,13 +1,18 @@
-import React, { createContext, useReducer, useEffect } from "react";
-import PropTypes from "prop-types";
-import Auth0 from "auth0-js";
-
+import Auth0, { AuthOptions } from "auth0-js";
+import React, { createContext, useEffect, useReducer } from "react";
 import { authReducer } from "./authReducer";
 import { handleAuthResult } from "./useAuth";
 
 export const AuthContext = createContext(null);
 
-export const AuthProvider = ({
+interface Props {
+    navigate: (url: string) => void;
+    auth0_domain: string;
+    auth0_client_id: string;
+    auth0_params: Omit<AuthOptions, "domain" | "clientID">;
+}
+
+export const AuthProvider: React.FC<Props> = ({
     children,
     navigate,
     auth0_domain,
@@ -32,15 +37,18 @@ export const AuthProvider = ({
 
     const [state, dispatch] = useReducer(authReducer, {
         user: {},
-        expiresAt: null
+        expiresAt: null,
+        checkingSession: true
     });
 
     useEffect(() => {
         auth0.checkSession({}, (err, authResult) => {
+            console.log("checkSession", err, authResult);
+
             if (err) {
                 dispatch({
                     type: "error",
-                    erroType: "checkSession",
+                    errorType: "checkSession",
                     error: err
                 });
             } else {
@@ -62,12 +70,4 @@ export const AuthProvider = ({
             {children}
         </AuthContext.Provider>
     );
-};
-
-AuthProvider.propTypes = {
-    children: PropTypes.element,
-    navigate: PropTypes.func,
-    auth0_domain: PropTypes.string,
-    auth0_client_id: PropTypes.string,
-    auth0_params: PropTypes.object
 };

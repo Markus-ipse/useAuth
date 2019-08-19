@@ -1,5 +1,5 @@
-import { useContext } from "react";
-
+import Auth0 from "auth0-js";
+import React, { useCallback, useContext } from "react";
 import { AuthContext } from "./AuthProvider";
 
 async function setSession({ dispatch, auth0, authResult }) {
@@ -24,12 +24,19 @@ async function setSession({ dispatch, auth0, authResult }) {
     });
 }
 
+export interface HandleAuthResultArgs {
+    err?: any;
+    dispatch: React.Dispatch<any>;
+    auth0: Auth0.WebAuth;
+    authResult: any;
+}
+
 export const handleAuthResult = async ({
     err,
     dispatch,
     auth0,
     authResult
-}) => {
+}: HandleAuthResultArgs) => {
     if (authResult && authResult.accessToken && authResult.idToken) {
         await setSession({ dispatch, auth0, authResult });
 
@@ -52,6 +59,8 @@ export const useAuth = () => {
     );
 
     const login = () => {
+        console.log("login()");
+
         auth0.authorize();
     };
 
@@ -67,15 +76,25 @@ export const useAuth = () => {
         navigate("/");
     };
 
-    const handleAuthentication = ({ postLoginRoute = "/" } = {}) => {
-        if (typeof window !== "undefined") {
-            auth0.parseHash(async (err, authResult) => {
-                await handleAuthResult({ err, authResult, dispatch, auth0 });
+    const handleAuthentication = useCallback(
+        ({ postLoginRoute = "/" }: HandleAuthArg = {}) => {
+            if (typeof window !== "undefined") {
+                auth0.parseHash(async (err, authResult) => {
+                    console.log(err, authResult);
 
-                navigate(postLoginRoute);
-            });
-        }
-    };
+                    await handleAuthResult({
+                        err,
+                        authResult,
+                        dispatch,
+                        auth0
+                    });
+
+                    navigate(postLoginRoute);
+                });
+            }
+        },
+        []
+    );
 
     const isAuthenticated = () => {
         return state.expiresAt && new Date().getTime() < state.expiresAt;
@@ -87,6 +106,11 @@ export const useAuth = () => {
         userId: state.user ? state.user.sub : null,
         login,
         logout,
-        handleAuthentication
+        handleAuthentication,
+        checkingSession: state.checkingSession
     };
 };
+
+export interface HandleAuthArg {
+    postLoginRoute?: string | null;
+}
